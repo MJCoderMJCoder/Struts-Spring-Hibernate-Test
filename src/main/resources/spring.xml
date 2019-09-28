@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:amq="http://activemq.apache.org/schema/core"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+        http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd">
+
+
+    <!--2.Spring.xml整合Struts2开始-->
+    <bean id="StudentAction" class="com.lzf.action.StudentAction">
+        <!--3.Spring.xml整合Hibernate做测试时：将service层传递给view层
+        name:是该bean对应的类中的属性（须一致）的setter方法；setiStudentService(IStudentService iStudentService)
+        ref:指向在spring.xml中定义的另一个bean的id-->
+        <property name="studentService" ref="StudentService"></property>
+    </bean>
+    <!--2.Spring.xml整合Struts2结束-->
+
+    <!--3.Spring.xml整合Hibernate开始-->
+    <!--SessionFactory利用Persistence的Generate Persistence Mapping By >>> Database Schema自动生成的-->
+    <bean id="AnnotationSessionFactoryBean"
+          class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean" destroy-method="destroy">
+        <property name="mappingLocations">
+            <list>
+                <value>classpath:com/lzf/model/Student.hbm.xml</value>
+            </list>
+        </property>
+        <property name="annotatedClasses">
+            <list>
+                <value>com.lzf.model.Student</value>
+            </list>
+        </property>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.connection.url">jdbc:mysql://localhost:3306/touristmapsystem?serverTimezone=UTC
+                </prop>
+                <prop key="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</prop>
+                <prop key="hibernate.connection.username">root</prop>
+                <prop key="hibernate.connection.password">LiuZhiFeng</prop>
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+            </props>
+        </property>
+    </bean>
+    <bean id="BasicDataSource" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url"
+                  value="jdbc:mysql://localhost:3306/touristmapsystem?serverTimezone=UTC"/>
+        <property name="username" value="root"/>
+        <property name="password" value="LiuZhiFeng"/>
+    </bean>
+    <!--SessionFactory配置-->
+    <!--<bean id="LocalSessionFactoryBean" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean"
+          destroy-method="destroy">
+        <property name="dataSource" ref="BasicDataSource"/>
+        <property name="mappingResources">
+            <list>
+                <value>Student.hbm.xml</value>
+            </list>
+        </property>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+                <prop key="hibernate.show_sql">false</prop>
+            </props>
+        </property>
+    </bean>-->
+    <bean id="StudentDao" class="com.lzf.dao.StudentDao">
+        <property name="sessionFactory" ref="AnnotationSessionFactoryBean"></property>
+    </bean>
+    <bean id="StudentService" class="com.lzf.service.impl.StudentService">
+        <property name="studentDao" ref="StudentDao"></property>
+    </bean>
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="BasicDataSource"></property>
+    </bean>
+    <!--3.Spring.xml整合Hibernate结束-->
+    <!-- 定义事务通知 -->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <!-- 定义方法的过滤规则 -->
+        <tx:attributes>
+            <!-- 所有方法都使用事务 -->
+            <tx:method name="*" propagation="REQUIRED"/>
+        </tx:attributes>
+    </tx:advice>
+    <!-- 定义AOP配置 -->
+    <aop:config>
+        <!-- 定义一个切入点 -->
+        <aop:pointcut expression="execution (* com.lzf.service.*.*(..))" id="services"/>
+        <!-- 对切入点和事务的通知，进行适配 -->
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="services"/>
+    </aop:config>
+</beans>

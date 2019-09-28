@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+    <class name="com.lzf.model.Student" table="student" schema="touristmapsystem">
+        <id name="studentId">
+            <column name="studentId" sql-type="int(10)"/>
+        </id>
+        <property name="studentName">
+            <column name="studentName" sql-type="varchar(45)" length="45"/>
+        </property>
+        <property name="studentAge">
+            <column name="studentAge" sql-type="int(11)"/>
+        </property>
+        <property name="studentScore">
+            <column name="studentScore" sql-type="float" precision="-1"/>
+        </property>
+        <property name="studentNumber">
+            <column name="studentNumber" sql-type="int(11)"/>
+        </property>
+    </class>
+</hibernate-mapping>
