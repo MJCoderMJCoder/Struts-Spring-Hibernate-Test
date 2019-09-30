@@ -8,6 +8,9 @@ import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ModelDriven;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ *
+ */
 public class StudentAction extends ActionSupport implements ModelDriven<Student> {
     private IStudentService studentService;
 
