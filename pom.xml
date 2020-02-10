@@ -16,7 +16,7 @@
         <dependency>
             <groupId>org.apache.struts</groupId>
             <artifactId>struts2-core</artifactId>
-            <version>2.5.1</version>
+            <version>2.5.16</version>
         </dependency>
         <!--struts2-json-plugin插件需要在struts.xml中配置action,而且package需要继承json-struts，另外还需要配置结果资源。-->
         <dependency>
